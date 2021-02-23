@@ -168,7 +168,7 @@ function generateParams(){
   const colorings = ["area","area","area","movement", "nothing", "nothingContrast"];
   const palettes  = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
-  const r_max             = d3.randomInt(48, 50)();
+  const r_max             = d3.randomInt(20, 50)();
   const shapeIdx          = d3.randomInt(7)();
   const chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
   const colorbyIdx        = d3.randomInt(6)();
@@ -623,7 +623,7 @@ function postTweet(){
   function publishStatusUpdate(mediaId) {
     return new Promise(function(resolve, reject) {
       client.post("statuses/update", {
-        status: "⬢⬡⬢⬡⬢⬡ #satisfying",
+        status: "⬢⬡⬢⬡⬢⬡",
         media_ids: mediaId
       }, function(error, data, response) {
         if (error) {
@@ -650,7 +650,7 @@ function postTweet(){
 
 
 
-/*
+//*
 foundWinner = false;
 while (!foundWinner){
   params = generateParams();
@@ -672,5 +672,5 @@ while (!foundWinner){
 }
 
 //*/
-generateVideo();
+//generateVideo();
 //postTweet();
