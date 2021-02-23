@@ -412,6 +412,11 @@ function generateFrames(p, o){
       }
 
     } // end cell loop
+    context.textAlign = 'end';
+    context.fillStyle = color_hexLines;
+    context.font = "12px Arial";
+    context.fillText("@mattdzugan", w-10, h-10);
+    context.fillText("@relaxagons", w-10, h-25);
 
     const buffer = canvas.toBuffer('image/png')
     fs.writeFileSync('./out/frame_'+d3.format("04d")(k)+'.png', buffer)
@@ -422,7 +427,7 @@ function generateFrames(p, o){
 
 
 
-  // TODO bring the dots back to the initial frame
+
 
 }
 
