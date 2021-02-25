@@ -1,18 +1,17 @@
+/* * * *
+Imports
+* * * */
+
 d3 = require("d3");
 turf = require("turf");
 var spawn = require('child_process').spawn;
 const Twitter = require("twitter");
 const fs = require('fs');
 const { createCanvas } = require('canvas');
+const request = require('request')
 pc = require("./polygonClip.js");
 ch = require("./chaikin.js");
 
-
-//const _ = require('lodash')
-const request = require('request')
-//const Promise = require('bluebird')
-//const requestPost= Promise.promisify(request.post,{multiArgs: true})
-//const requestGet = Promise.promisify(request.get, {multiArgs: true})
 
 
 /* * * * * * * * * * *
@@ -173,7 +172,7 @@ function generateParams(){
   const colorings = ["area","area","area","movement", "nothing", "nothingContrast"];
   const palettes  = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
-  const r_max             = d3.randomInt(12, 32)();
+  const r_max             = d3.randomInt(10, 30)();
   const shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
   const chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
   const colorbyIdx        = d3.randomInt(6)();
@@ -282,7 +281,7 @@ function generateFrames(p, o){
   hexData       = genHexData();
   unionPolygon  = genUnionPolygon();
   palette       = genPalette();
-  //points_0 = Float64Array.from({length: hexData.length*2}, (_, i) => (r_max/-2)+r_max*Math.random() + (i & 1 ? h : w) / 2);
+  //points_0 are in the global variable from the initial doParamsConverge() check
   n        = hexData.length*2;
   points   = points_0.slice();
   omega    = hexData.length/200;
@@ -435,16 +434,10 @@ function generateFrames(p, o){
     voronoi.update();
   } // end time loop
 
-
-
-
-
 }
 
 
 function generateVideo(){
-
-
   // Forward Video
   var cmd = 'ffmpeg';
   var args = [
@@ -476,10 +469,6 @@ function generateVideo(){
         '-f', 'image2',
         '-s', (w+'x'+h),
         '-i', './out/frame_%04d.png',
-        //'-vf', '"tblend=average,framestep=2,tblend=average,framestep=2,setpts=0.25*PTS"',
-        //'-filter_complex','[0]reverse[r];[0][r]concat=n=2,setpts=0.2*PTS',
-        //'-filter_complex','reverse[r];[r],setpts=0.2*PTS',
-        //'-vf', 'tblend=average,framestep=2,tblend=average,framestep=2,setpts=0.25*PTS',
         '-vf', 'reverse,setpts=0.05*PTS',
         '-vcodec', 'libx264',
         '-crf', '15',
@@ -496,12 +485,7 @@ function generateVideo(){
     });
     proc.on('close', function() {
 
-
-
-
-
       // Combination Video ffmpeg -f concat -i input.txt -codec copy output.mp4
-
       var cmd = 'ffmpeg';
       var args = [
           '-y',
@@ -524,53 +508,22 @@ function generateVideo(){
           }catch{}
           console.log('finished');
           postTweet();
-      });
-
-
-
-
-
-
-
-    });
-
-
-
-
-
-
-  });
-
-
-
-
-
+      }); // end callback for out.mp4 being done
+    }); // end callback for reverse.mp4 being done
+  }); // end callback for forward.mp4 being done
 }
 
 
+
 function postTweet(){
-  console.log("👋 🐦 👋 🐦 👋 🐦 👋 🐦 👋")
-  console.log(" ")
-  console.log("🐦 👋 🐦 👋 🐦 👋 🐦 👋 🐦")
-  console.log(" ")
-  console.log("👋 🐦 👋 🐦 👋 🐦 👋 🐦 👋")
-  console.log(" ")
-  console.log("🐦 👋 🐦 👋 🐦 👋 🐦 👋 🐦")
-  console.log(" ")
 
-
-
-
-
-
-
+  // twitter creds are stored in env variables
   var oauthCredentials = {
     consumer_key:    process.env.relaxagons_consumer_key,
     consumer_secret: process.env.relaxagons_consumer_secret,
     token:           process.env.relaxagons_access_token_key,
     token_secret:    process.env.relaxagons_access_token_secret
   };
-
 
   const client = new Twitter({
     consumer_key:         process.env.relaxagons_consumer_key,
@@ -581,12 +534,9 @@ function postTweet(){
   });
 
 
-
-
-
   //*
-  const pathToFile = '/Users/mdzugan/Documents/GitHub/relaxagons/out.mp4';
-  const filePath = '/Users/mdzugan/Documents/GitHub/relaxagons/out.mp4';
+  const pathToFile = './out.mp4';
+  const filePath = './out.mp4';
   const mediaType = "video/mp4"
 
   const mediaData = fs.readFileSync(pathToFile)
@@ -624,7 +574,6 @@ function postTweet(){
 
                   options.formData = {
                       command: 'FINALIZE',
-                      //media_category: 'amplify_video',
                       media_id: media_id
                   };
                   request.post(options, function(err, response, body) {
@@ -669,7 +618,6 @@ function postTweet(){
                   options.formData = {
                       command: "APPEND",
                       media_id: media_id,
-                      //media_category: 'amplify_video',
                       segment_index: segment_index,
                       media_data: data.toString('base64')
                   };
@@ -690,27 +638,36 @@ function postTweet(){
 
 
 
-/*
+//*
 foundWinner = false;
 while (!foundWinner){
-  params = generateParams();
-  outcome = doParamsConverge(params);
-
-  console.log(params)
-  console.log(outcome)
-  console.log(" ")
-  console.log(" ")
-  console.log(" ")
-  console.log(" ")
 
 
-  if(outcome.isConverged){
-     foundWinner = true;
+  console.log(" Trying new set of parameters....")
+  try {
+    params = generateParams();
+    outcome = doParamsConverge(params);
+    foundWinner = outcome.isConverged;
+
+    console.log(params);
+    console.log(outcome);
+  } catch(error){
+    console.log(error)
+  }
+  console.log(" ")
+
+
+
+
+  if(foundWinner){
+     console.log("Those parameters were good! Time to make a video & tweet it")
      generateFrames(params, outcome);
      generateVideo();
+     // not that postTweet gets called from INSIDE generateVideo()
+     // this is because we need to be sure it runs after the video is complete
   }
 }
 //*/
 
 //generateVideo();
-postTweet();
+//postTweet();
