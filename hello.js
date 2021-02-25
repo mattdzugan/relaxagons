@@ -169,13 +169,13 @@ Main Functions
 * * * * * * * */
 function generateParams(){
   const shapes    = ["Circle", "Rectangle", "Oval", "Diamond", "Wave", "Hex1", "Hex2"];
-  const colorings = ["area","area","area","movement", "nothing", "nothingContrast"];
+  const colorings = ["area","movement", "nothing", "nothingContrast"];
   const palettes  = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
   const r_max             = d3.randomInt(10, 30)();
   const shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
   const chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
-  const colorbyIdx        = d3.randomInt(6)();
+  const colorbyIdx        = (Math.random()<0.8) ? d3.randomInt(2)() : d3.randomInt(4)();
   const paletteIdx        = d3.randomInt(17)();
   const centroids         = (Math.random()<0.2);
 
