@@ -207,7 +207,7 @@ function doParamsConverge(p){
 
 
   const delaunay = new d3.Delaunay(points);
-  const voronoi = delaunay.voronoi([0, 0, w, h]);
+  const voronoi = delaunay.voronoi([-1000, -1000, w+1000, h+1000]); //bigger box avoids clipping
   let k = 0;
   let converged = false;
   while((k<4199)&(!converged)){ // time loop // limit by 140 seconds * 30 fps
@@ -348,7 +348,7 @@ function generateFrames(p, o){
 
   // initialize Simulation
   const delaunay = new d3.Delaunay(points);
-  const voronoi = delaunay.voronoi([0, 0, w, h]);
+  const voronoi = delaunay.voronoi([-1000, -1000, w+1000, h+1000]); //bigger box avoids clipping
 
   // run Simulation
   for (let k = 0; k < o.numIterations; ++k) {
