@@ -8,6 +8,11 @@ pc = require("./polygonClip.js");
 ch = require("./chaikin.js");
 
 
+//const _ = require('lodash')
+const request = require('request')
+//const Promise = require('bluebird')
+//const requestPost= Promise.promisify(request.post,{multiArgs: true})
+//const requestGet = Promise.promisify(request.get, {multiArgs: true})
 
 
 /* * * * * * * * * * *
@@ -168,8 +173,8 @@ function generateParams(){
   const colorings = ["area","area","area","movement", "nothing", "nothingContrast"];
   const palettes  = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
-  const r_max             = d3.randomInt(20, 50)();
-  const shapeIdx          = d3.randomInt(7)();
+  const r_max             = d3.randomInt(12, 32)();
+  const shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
   const chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
   const colorbyIdx        = d3.randomInt(6)();
   const paletteIdx        = d3.randomInt(17)();
@@ -206,7 +211,7 @@ function doParamsConverge(p){
   const voronoi = delaunay.voronoi([0, 0, w, h]);
   let k = 0;
   let converged = false;
-  while((k<7500)&(!converged)){ // time loop
+  while((k<4199)&(!converged)){ // time loop // limit by 140 seconds * 30 fps
 
     var maxDist = 0;
     var minArea = w*h*2;
@@ -282,6 +287,10 @@ function generateFrames(p, o){
   points   = points_0.slice();
   omega    = hexData.length/200;
 
+  if(r_max < 18){
+    centroids = false;
+  }
+
   // compute simple color info
   var color_background   = palette.base;
   var color_polygonfill  = palette.base;
@@ -291,7 +300,7 @@ function generateFrames(p, o){
   if(colorby == 'nothingContrast'){
     color_background  = palette.dark;
     color_polygonfill = palette.dark;
-    color_hexLines     = d3.rgb(palette.dark).brighter(0.25);
+    color_hexLines     = d3.rgb(palette.dark).brighter(2);
   }
   if(colorby == 'area'){
     var colorScale = d3.scaleLinear()
@@ -415,9 +424,9 @@ function generateFrames(p, o){
     } // end cell loop
     context.textAlign = 'end';
     context.fillStyle = color_hexLines;
-    context.font = "12px Arial";
-    context.fillText("@mattdzugan", w-10, h-10);
-    context.fillText("@relaxagons", w-10, h-25);
+    context.font = "bold 14px Arial";
+    context.fillText("@mattdzugan", w-10, h-28);
+    context.fillText("@relaxagons", w-10, h-10);
 
     const buffer = canvas.toBuffer('image/png')
     fs.writeFileSync('./out/frame_'+d3.format("04d")(k)+'.png', buffer)
@@ -550,96 +559,127 @@ function postTweet(){
   console.log(" ")
 
 
+
+
+
+
+
+  var oauthCredentials = {
+    consumer_key:    process.env.relaxagons_consumer_key,
+    consumer_secret: process.env.relaxagons_consumer_secret,
+    token:           process.env.relaxagons_access_token_key,
+    token_secret:    process.env.relaxagons_access_token_secret
+  };
+
+
   const client = new Twitter({
-    consumer_key:         '',
-    consumer_secret:      '',
-    access_token_key:     '',
-    access_token_secret:  ''
-  })
+    consumer_key:         process.env.relaxagons_consumer_key,
+    consumer_secret:      process.env.relaxagons_consumer_secret,
+    access_token_key:     process.env.relaxagons_access_token_key,
+    access_token_secret:  process.env.relaxagons_access_token_secret,
+    request_options: {"timeout": 60*1000}
+  });
 
 
+
+
+
+  //*
   const pathToFile = '/Users/mdzugan/Documents/GitHub/relaxagons/out.mp4';
+  const filePath = '/Users/mdzugan/Documents/GitHub/relaxagons/out.mp4';
   const mediaType = "video/mp4"
 
   const mediaData = fs.readFileSync(pathToFile)
   const mediaSize = fs.statSync(pathToFile).size
 
-  initializeMediaUpload()
-    .then(appendFileChunk)
-    .then(finalizeUpload)
-    .then(publishStatusUpdate)
-
-  function initializeMediaUpload() {
-    return new Promise(function(resolve, reject) {
-      client.post("media/upload", {
-        command: "INIT",
-        total_bytes: mediaSize,
-        media_type: mediaType
-      }, function(error, data, response) {
-        if (error) {
-          console.log(error)
-          reject(error)
-        } else {
-          resolve(data.media_id_string)
-        }
-      })
-    })
-  }
-
-  function appendFileChunk(mediaId) {
-    return new Promise(function(resolve, reject) {
-      client.post("media/upload", {
-        command: "APPEND",
-        media_id: mediaId,
-        media: mediaData,
-        segment_index: 0
-      }, function(error, data, response) {
-        if (error) {
-          console.log(error)
-          reject(error)
-        } else {
-          resolve(mediaId)
-        }
-      })
-    })
-  }
-
-  function finalizeUpload(mediaId) {
-    return new Promise(function(resolve, reject) {
-      client.post("media/upload", {
-        command: "FINALIZE",
-        media_id: mediaId
-      }, function(error, data, response) {
-        if (error) {
-          console.log(error)
-          reject(error)
-        } else {
-          resolve(mediaId)
-        }
-      })
-    })
-  }
-
-  function publishStatusUpdate(mediaId) {
-    return new Promise(function(resolve, reject) {
-      client.post("statuses/update", {
-        status: "⬢⬡⬢⬡⬢⬡",
-        media_ids: mediaId
-      }, function(error, data, response) {
-        if (error) {
-          console.log(error)
-          reject(error)
-        } else {
-          console.log("Successfully uploaded media and tweeted!")
-          resolve(data)
-        }
-      })
-    })
-  }
+  var mySegIdx = 0;
 
 
+  var bufferLength = 1000000;
+  var theBuffer = Buffer.alloc(bufferLength);
+  var offset = 0;
+  var segment_index = 0;
+  var finished = 0;
+
+  fs.stat(filePath, function(err, stats) {
+      var formData, normalAppendCallback, options;
+
+      formData = {
+          command: "INIT",
+          media_type: 'video/mp4',
+          media_category: 'AMPLIFY_VIDEO',
+          total_bytes: stats.size
+      };
+      options = {
+          url: 'https://upload.twitter.com/1.1/media/upload.json',
+          oauth: oauthCredentials,
+          formData: formData
+      };
+
+      normalAppendCallback = function(media_id) {
+          return function(err, response, body) {
+
+              finished++;
+              if (finished === segment_index) {
+
+                  options.formData = {
+                      command: 'FINALIZE',
+                      //media_category: 'amplify_video',
+                      media_id: media_id
+                  };
+                  request.post(options, function(err, response, body) {
+                      console.log('FINALIZED',response.statusCode,body);
 
 
+                      var status = {
+                        status: '‏‏‎⠀‎ ⬡  ⬡\n ⬡  ⬡  ⬡   '+hexData.length+' hexes today, enjoy!\n‏‏‎⠀ ⬡  ⬡',
+                        //status: '‏‏‎⠀‎ ⬡  ⬡\n ⬡  ⬡  ⬡   test',
+                        media_ids: media_id // Pass the media id string
+                      }
+
+
+                      // wait 60 seconds for upload
+                      setTimeout(function(){
+                        client.post('statuses/update', status, function(error, tweet, response) {
+                          if (!error) {
+                            console.log(tweet);
+                          }else{
+                            console.log(error)
+                          }
+                        });
+                      }, 60*1000);
+
+                  });
+              }
+          };
+      };
+
+
+      request.post(options, function(err, response, body) {
+          var media_id;
+          media_id = JSON.parse(body).media_id_string;
+
+          fs.open(filePath, 'r', function(err, fd) {
+              var bytesRead, data;
+
+              while (offset < stats.size) {
+
+                  bytesRead = fs.readSync(fd, theBuffer, 0, bufferLength, null);
+                  data = bytesRead < bufferLength ? theBuffer.slice(0, bytesRead) : theBuffer;
+                  options.formData = {
+                      command: "APPEND",
+                      media_id: media_id,
+                      //media_category: 'amplify_video',
+                      segment_index: segment_index,
+                      media_data: data.toString('base64')
+                  };
+                  request.post(options, normalAppendCallback(media_id));
+                  offset += bufferLength;
+                  segment_index++
+              }
+          });
+      });
+  });
 
 
 
@@ -650,7 +690,7 @@ function postTweet(){
 
 
 
-//*
+/*
 foundWinner = false;
 while (!foundWinner){
   params = generateParams();
@@ -670,7 +710,7 @@ while (!foundWinner){
      generateVideo();
   }
 }
-
 //*/
+
 //generateVideo();
-//postTweet();
+postTweet();
