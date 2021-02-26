@@ -177,7 +177,7 @@ function generateParams(){
   while(numHexes<128){
     r_max             = d3.randomInt(10, 30)();
     var shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
-    var chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
+    var chaikinIterations = (Math.random()<0.9) ? 0 : d3.randomInt(0, 4)();
     var colorbyIdx        = (Math.random()<0.8) ? d3.randomInt(2)() : d3.randomInt(4)();
     var paletteIdx        = d3.randomInt(17)();
     var centroids         = (Math.random()<0.2);
