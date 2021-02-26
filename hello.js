@@ -172,12 +172,22 @@ function generateParams(){
   const colorings = ["area","movement", "nothing", "nothingContrast"];
   const palettes  = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"];
 
-  const r_max             = d3.randomInt(10, 30)();
-  const shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
-  const chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
-  const colorbyIdx        = (Math.random()<0.8) ? d3.randomInt(2)() : d3.randomInt(4)();
-  const paletteIdx        = d3.randomInt(17)();
-  const centroids         = (Math.random()<0.2);
+
+  var numHexes = 0;
+  while(numHexes<128){
+    r_max             = d3.randomInt(10, 30)();
+    var shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
+    var chaikinIterations = (Math.random()<0.8) ? 0 : d3.randomInt(0, 4)();
+    var colorbyIdx        = (Math.random()<0.8) ? d3.randomInt(2)() : d3.randomInt(4)();
+    var paletteIdx        = d3.randomInt(17)();
+    var centroids         = (Math.random()<0.2);
+    shape = shapes[shapeIdx];
+    hexarea       = 3*Math.sqrt(3)/2*(r_max*r_max);
+    maskpoly      = genMaskPoly(w, h, m, r_max, shape);
+    hexData       = genHexData();
+    numHexes      = hexData.length;
+  }
+
 
   const params      = {
     r_max:                 r_max,
@@ -671,3 +681,4 @@ while (!foundWinner){
 
 //generateVideo();
 //postTweet();
+//generateParams()
