@@ -174,7 +174,7 @@ function generateParams(){
 
 
   var numHexes = 0;
-  while(numHexes<128){
+  while(numHexes<100){
     r_max             = d3.randomInt(10, 30)();
     var shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
     var chaikinIterations = (Math.random()<0.9) ? 0 : d3.randomInt(0, 4)();
@@ -213,7 +213,7 @@ function doParamsConverge(p){
   points_0 = Float64Array.from({length: hexData.length*2}, (_, i) => (r_max/-2)+r_max*Math.random() + (i & 1 ? h : w) / 2);
   n        = hexData.length*2;
   points   = points_0.slice();
-  omega    = hexData.length/200;
+  omega    = Math.min(hexData.length/200,2.5);
 
 
   const delaunay = new d3.Delaunay(points);
@@ -294,7 +294,7 @@ function generateFrames(p, o){
   //points_0 are in the global variable from the initial doParamsConverge() check
   n        = hexData.length*2;
   points   = points_0.slice();
-  omega    = hexData.length/200;
+  omega    = Math.min(hexData.length/200,2.5);
 
   if(r_max < 18){
     centroids = false;
