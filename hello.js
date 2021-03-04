@@ -220,7 +220,7 @@ function doParamsConverge(p){
   const voronoi = delaunay.voronoi([-1000, -1000, w+1000, h+1000]); //bigger box avoids clipping
   let k = 0;
   let converged = false;
-  while((k<4199)&(!converged)){ // time loop // limit by 140 seconds * 30 fps
+  while((k<3800)&(!converged)){ // time loop // limit by 140 seconds * 30 fps
 
     var maxDist = 0;
     var minArea = w*h*2;
