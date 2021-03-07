@@ -176,7 +176,7 @@ function generateParams(){
   var numHexes = 0;
   while(numHexes<100){
     r_max             = d3.randomInt(10, 30)();
-    var shapeIdx          = (Math.random()<0.4) ? 1 : d3.randomInt(7)();
+    var shapeIdx          = (Math.random()<0.5) ? 1 : d3.randomInt(7)();
     var chaikinIterations = (Math.random()<0.9) ? 0 : d3.randomInt(0, 4)();
     var colorbyIdx        = (Math.random()<0.8) ? d3.randomInt(2)() : d3.randomInt(4)();
     var paletteIdx        = d3.randomInt(17)();
@@ -657,7 +657,7 @@ while (!foundWinner){
   try {
     params = generateParams();
     outcome = doParamsConverge(params);
-    foundWinner = outcome.isConverged;
+    foundWinner = (outcome.isConverged)&(outcome.numIterations>1000);
 
     console.log(params);
     console.log(outcome);
