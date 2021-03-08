@@ -527,19 +527,21 @@ function generateVideo(){
 
 function postTweet(){
 
-  // twitter creds are stored in env variables
+  // load secrets from local file
+  let rawdata = fs.readFileSync('./secrets.json');
+  let secrets = JSON.parse(rawdata);
   var oauthCredentials = {
-    consumer_key:    process.env.relaxagons_consumer_key,
-    consumer_secret: process.env.relaxagons_consumer_secret,
-    token:           process.env.relaxagons_access_token_key,
-    token_secret:    process.env.relaxagons_access_token_secret
+    consumer_key:    secrets.relaxagons_consumer_key,
+    consumer_secret: secrets.relaxagons_consumer_secret,
+    token:           secrets.relaxagons_access_token_key,
+    token_secret:    secrets.relaxagons_access_token_secret
   };
 
   const client = new Twitter({
-    consumer_key:         process.env.relaxagons_consumer_key,
-    consumer_secret:      process.env.relaxagons_consumer_secret,
-    access_token_key:     process.env.relaxagons_access_token_key,
-    access_token_secret:  process.env.relaxagons_access_token_secret,
+    consumer_key:         secrets.relaxagons_consumer_key,
+    consumer_secret:      secrets.relaxagons_consumer_secret,
+    access_token_key:     secrets.relaxagons_access_token_key,
+    access_token_secret:  secrets.relaxagons_access_token_secret,
     request_options: {"timeout": 60*1000}
   });
 
@@ -648,7 +650,7 @@ function postTweet(){
 
 
 
-//*
+/*
 foundWinner = false;
 while (!foundWinner){
 
@@ -680,5 +682,5 @@ while (!foundWinner){
 //*/
 
 //generateVideo();
-//postTweet();
+postTweet();
 //generateParams()
