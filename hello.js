@@ -650,7 +650,7 @@ function postTweet(){
 
 
 
-/*
+//*
 foundWinner = false;
 while (!foundWinner){
 
@@ -682,5 +682,5 @@ while (!foundWinner){
 //*/
 
 //generateVideo();
-postTweet();
+//postTweet();
 //generateParams()
